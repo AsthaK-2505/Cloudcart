@@ -64,5 +64,30 @@ services:
       - product-service
       - order-service
 
+  payment-service:
+    build: ./payment-service
+    container_name: cloudcart-payment
+    ports:
+      - "5004:5004"
+
+  notification-service:
+    build: ./notification-service
+    container_name: cloudcart-notification
+    ports:
+      - "5005:5005"
+
+  redis:
+    image: redis:7-alpine
+    container_name: cloudcart-redis
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: cloudcart-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
 volumes:
   postgres_data:
