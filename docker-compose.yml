@@ -1,22 +1,58 @@
 services:
 
+  postgres:
+    image: postgres:16
+    container_name: cloudcart-postgres
+    environment:
+      POSTGRES_USER: cloudcart
+      POSTGRES_PASSWORD: cloudcart
+      POSTGRES_DB: cloudcart
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   user-service:
     build: ./user-service
     container_name: cloudcart-user
     ports:
       - "5001:5001"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: cloudcart
+      DB_USER: cloudcart
+      DB_PASSWORD: cloudcart
+    depends_on:
+      - postgres
 
   product-service:
     build: ./product-service
     container_name: cloudcart-product
     ports:
       - "5002:5002"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: cloudcart
+      DB_USER: cloudcart
+      DB_PASSWORD: cloudcart
+    depends_on:
+      - postgres
 
   order-service:
     build: ./order-service
     container_name: cloudcart-order
     ports:
       - "5003:5003"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: cloudcart
+      DB_USER: cloudcart
+      DB_PASSWORD: cloudcart
+    depends_on:
+      - postgres
 
   api-gateway:
     build: ./api-gateway
@@ -27,3 +63,6 @@ services:
       - user-service
       - product-service
       - order-service
+
+volumes:
+  postgres_data:
