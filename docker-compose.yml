@@ -1,0 +1,29 @@
+services:
+
+  user-service:
+    build: ./user-service
+    container_name: cloudcart-user
+    ports:
+      - "5001:5001"
+
+  product-service:
+    build: ./product-service
+    container_name: cloudcart-product
+    ports:
+      - "5002:5002"
+
+  order-service:
+    build: ./order-service
+    container_name: cloudcart-order
+    ports:
+      - "5003:5003"
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: cloudcart-gateway
+    ports:
+      - "5000:5000"
+    depends_on:
+      - user-service
+      - product-service
+      - order-service

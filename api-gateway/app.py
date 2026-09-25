@@ -4,15 +4,20 @@ import requests
 app = Flask(__name__)
 
 
-USER_SERVICE = "http://localhost:5001"
-PRODUCT_SERVICE = "http://localhost:5002"
-ORDER_SERVICE = "http://localhost:5003"
-
+USER_SERVICE = "http://user-service:5001"
+PRODUCT_SERVICE = "http://product-service:5002"
+ORDER_SERVICE = "http://order-service:5003"
 
 @app.route("/")
 def home():
     return "CloudCart API Gateway is running!"
 
+@app.route("/health")
+def health():
+    return jsonify({
+        "service": "api-gateway",
+        "status": "healthy"
+    })
 
 @app.route("/users")
 def users():
