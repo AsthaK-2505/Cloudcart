@@ -1,18 +1,28 @@
 from flask import Flask, jsonify
-import os
 import psycopg
+import redis
+import json
+import os
 
 app = Flask(__name__)
 
+DB_CONFIG = {
+    "host": os.getenv("DB_HOST", "postgres"),
+    "port": os.getenv("DB_PORT", 5432),
+    "dbname": os.getenv("DB_NAME", "cloudcart"),
+    "user": os.getenv("DB_USER", "cloudcart"),
+    "password": os.getenv("DB_PASSWORD", "cloudcart")
+}
 
-def get_connection():
-    return psycopg.connect(
-        host=os.getenv("DB_HOST", "localhost"),
-        port=os.getenv("DB_PORT", "5432"),
-        dbname=os.getenv("DB_NAME", "cloudcart"),
-        user=os.getenv("DB_USER", "cloudcart"),
-        password=os.getenv("DB_PASSWORD", "cloudcart")
-    )
+redis_client = redis.Redis(
+    host="redis",
+    port=6379,
+    decode_responses=True
+)
+
+
+def get_db_connection():
+    return psycopg.connect(**DB_CONFIG)
 
 
 @app.route("/health")
@@ -24,46 +34,52 @@ def health():
 
 
 @app.route("/products")
-def products():
-    conn = get_connection()
-    cur = conn.cursor()
+def get_products():
 
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS products (
-            id SERIAL PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            price INTEGER NOT NULL
-        )
+    # 1. Check Redis
+    cached_products = redis_client.get("products")
+
+    if cached_products:
+        print("CACHE HIT", flush=True)
+        return jsonify(json.loads(cached_products))
+
+    # 2. Cache miss → query PostgreSQL
+    print("CACHE MISS", flush=True)
+
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT id, name, price
+        FROM products
+        ORDER BY id
     """)
 
-    cur.execute("SELECT COUNT(*) FROM products")
-    count = cur.fetchone()[0]
+    rows = cursor.fetchall()
 
-    if count == 0:
-        cur.execute(
-            """
-            INSERT INTO products (name, price)
-            VALUES (%s, %s), (%s, %s)
-            """,
-            ("Laptop", 65000, "Keyboard", 2000)
-        )
-        conn.commit()
+    cursor.close()
+    connection.close()
 
-    cur.execute("SELECT id, name, price FROM products ORDER BY id")
-    products = cur.fetchall()
+    products = []
 
-    cur.close()
-    conn.close()
+    for row in rows:
+        products.append({
+            "id": row[0],
+            "name": row[1],
+            "price": row[2]
+        })
 
-    return jsonify([
-        {
-            "id": product[0],
-            "name": product[1],
-            "price": product[2]
-        }
-        for product in products
-    ])
+    # 3. Store result in Redis
+    redis_client.set(
+        "products",
+        json.dumps(products),
+        ex=60
+    )
 
+    return jsonify(products)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5002)
+    app.run(
+        host="0.0.0.0",
+        port=5002
+    )

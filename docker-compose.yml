@@ -39,7 +39,7 @@ services:
       DB_PASSWORD: cloudcart
     depends_on:
       - postgres
-
+      - redis
   order-service:
     build: ./order-service
     container_name: cloudcart-order
