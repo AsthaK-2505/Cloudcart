@@ -1,0 +1,54 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cloudcart-db-init
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+
+      containers:
+        - name: db-init
+          image: postgres:16
+
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cloudcart-secret
+                  key: DB_PASSWORD
+
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Waiting for PostgreSQL..."
+
+              until pg_isready \
+                -h postgres \
+                -p 5432 \
+                -U cloudcart \
+                -d cloudcart
+              do
+                sleep 2
+              done
+
+              echo "PostgreSQL is ready!"
+
+              psql \
+                -h postgres \
+                -U cloudcart \
+                -d cloudcart \
+                -f /sql/db-init.sql
+
+              echo "Database initialization completed!"
+
+          volumeMounts:
+            - name: db-init
+              mountPath: /sql
+
+      volumes:
+        - name: db-init
+          configMap:
+            name: cloudcart-db-init
+
