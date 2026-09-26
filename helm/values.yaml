@@ -1,0 +1,31 @@
+namespace: cloudcart
+
+images:
+  apiGateway: cloudcart-api-gateway:1.0
+  userService: cloudcart-user-service:1.0
+  productService: cloudcart-product-service:1.0
+  orderService: cloudcart-order-service:1.0
+  paymentService: cloudcart-payment-service:1.0
+  notificationService: cloudcart-notification-service:1.0
+
+replicas:
+  apiGateway: 2
+  userService: 1
+  productService: 1
+  orderService: 1
+  paymentService: 1
+  notificationService: 1
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "256Mi"
+
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 3
+  cpuTarget: 70
