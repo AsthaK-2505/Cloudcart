@@ -1,5 +1,6 @@
 namespace: cloudcart
-
+gateway:
+  nodePort: 30003
 images:
   apiGateway: ghcr.io/asthak-2505/cloudcart-api-gateway
   userService: ghcr.io/asthak-2505/cloudcart-user-service
