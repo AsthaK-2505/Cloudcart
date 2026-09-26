@@ -1,12 +1,14 @@
 namespace: cloudcart
 
 images:
-  apiGateway: cloudcart-api-gateway:1.0
-  userService: cloudcart-user-service:1.0
-  productService: cloudcart-product-service:1.0
-  orderService: cloudcart-order-service:1.0
-  paymentService: cloudcart-payment-service:1.0
-  notificationService: cloudcart-notification-service:1.0
+  apiGateway: ghcr.io/asthak-2505/cloudcart-api-gateway
+  userService: ghcr.io/asthak-2505/cloudcart-user-service
+  productService: ghcr.io/asthak-2505/cloudcart-product-service
+  orderService: ghcr.io/asthak-2505/cloudcart-order-service
+  paymentService: ghcr.io/asthak-2505/cloudcart-payment-service
+  notificationService: ghcr.io/asthak-2505/cloudcart-notification-service
+
+tag: latest
 
 replicas:
   apiGateway: 2

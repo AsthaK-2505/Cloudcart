@@ -59,9 +59,13 @@ jobs:
         run: |
           docker build \
             -t ghcr.io/asthak-2505/cloudcart-${{ matrix.service }}:${{ github.sha }} \
+            -t ghcr.io/asthak-2505/cloudcart-${{ matrix.service }}:latest \
             .
 
-      - name: Push Docker image
+      - name: Push Docker images
         run: |
           docker push \
             ghcr.io/asthak-2505/cloudcart-${{ matrix.service }}:${{ github.sha }}
+
+          docker push \
+            ghcr.io/asthak-2505/cloudcart-${{ matrix.service }}:latest
