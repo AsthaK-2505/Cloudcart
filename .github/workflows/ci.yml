@@ -42,3 +42,8 @@ jobs:
         working-directory: ${{ matrix.service }}
         run: |
           python -m compileall .
+
+      - name: Build Docker image
+        working-directory: ${{ matrix.service }}
+        run: |
+          docker build -t cloudcart-${{ matrix.service }}:${{ github.sha }} .
