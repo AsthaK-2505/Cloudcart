@@ -24,8 +24,8 @@ spec:
     spec:
       containers:
         - name: payment-service
-          image: {{ .Values.images.paymentService }}
-          imagePullPolicy: Never
+          image: {{ .Values.images.paymentService }}:{{ .Values.tag }}
+          imagePullPolicy: IfNotPresent
 
           ports:
             - containerPort: 5004

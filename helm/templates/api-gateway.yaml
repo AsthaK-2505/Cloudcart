@@ -24,8 +24,8 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: {{ .Values.images.apiGateway }}
-          imagePullPolicy: Never
+          image: {{ .Values.images.apiGateway }}:{{ .Values.tag }}
+          imagePullPolicy: IfNotPresent
 
           ports:
             - containerPort: 5000
