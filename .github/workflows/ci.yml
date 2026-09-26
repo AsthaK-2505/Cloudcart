@@ -58,10 +58,10 @@ jobs:
         working-directory: ${{ matrix.service }}
         run: |
           docker build \
-            -t ghcr.io/${{ github.repository_owner }}/cloudcart-${{ matrix.service }}:${{ github.sha }} \
+            -t ghcr.io/asthak-2505/cloudcart-${{ matrix.service }}:${{ github.sha }} \
             .
 
       - name: Push Docker image
         run: |
           docker push \
-            ghcr.io/${{ github.repository_owner }}/cloudcart-${{ matrix.service }}:${{ github.sha }}
+            ghcr.io/asthak-2505/cloudcart-${{ matrix.service }}:${{ github.sha }}
