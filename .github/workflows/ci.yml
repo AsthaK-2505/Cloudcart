@@ -8,9 +8,13 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
-  validate:
-    name: Validate Python Services
+  build-and-push:
+    name: Build ${{ matrix.service }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -43,7 +47,21 @@ jobs:
         run: |
           python -m compileall .
 
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build Docker image
         working-directory: ${{ matrix.service }}
         run: |
-          docker build -t cloudcart-${{ matrix.service }}:${{ github.sha }} .
+          docker build \
+            -t ghcr.io/${{ github.repository_owner }}/cloudcart-${{ matrix.service }}:${{ github.sha }} \
+            .
+
+      - name: Push Docker image
+        run: |
+          docker push \
+            ghcr.io/${{ github.repository_owner }}/cloudcart-${{ matrix.service }}:${{ github.sha }}
